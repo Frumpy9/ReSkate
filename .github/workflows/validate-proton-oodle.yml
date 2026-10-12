@@ -31,7 +31,7 @@ jobs:
       - name: Build the loader fixtures
         run: cmake --build --preset release --target dingosdk_oodle_path_tests --parallel 4
       - name: Run Windows regression tests
-        run: ctest --test-dir build/vs2022-x64 -C Release -R '^oodle_path
+        run: ctest --test-dir build/vs2022-x64 -C Release -R '^oodle_path$' --output-on-failure
       - name: Preserve the patched loader fixture
         shell: pwsh
         run: |
@@ -44,31 +44,6 @@ jobs:
           @'
           import pathlib, subprocess
           subprocess.check_call(["git", "fetch", "--depth=1", "origin", "22758a789e1d3c754ef7bbf414c0784d8b4a2114"])
-          source = subprocess.check_output(["git", "show", "22758a789e1d3c754ef7bbf414c0784d8b4a2114:Engine/Resource/cas_codec.cpp"])
-          pathlib.Path("Engine/Resource/cas_codec.cpp").write_bytes(source)
-          '@ | python -
-      - name: Build the baseline loader fixture
-        run: cmake --build --preset release --target dingosdk_oodle_path_tests --parallel 4
-      - name: Preserve the baseline loader fixture
-        shell: pwsh
-        run: Copy-Item build/vs2022-x64/Release/dingosdk_oodle_path_tests.exe artifacts/baseline/
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: oodle-path-fixtures
-          path: artifacts/
-          retention-days: 7
- --output-on-failure
-      - name: Preserve the patched loader fixture
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force artifacts/patched, artifacts/baseline, artifacts/codec | Out-Null
-          Copy-Item build/vs2022-x64/Release/dingosdk_oodle_path_tests.exe artifacts/patched/
-          Copy-Item build/vs2022-x64/oodle-fixture/Release/oo2core_9_win64.dll artifacts/codec/
-      - name: Restore only the baseline codec source in this temporary runner
-        shell: pwsh
-        run: |
-          @'
-          import pathlib, subprocess
           source = subprocess.check_output(["git", "show", "22758a789e1d3c754ef7bbf414c0784d8b4a2114:Engine/Resource/cas_codec.cpp"])
           pathlib.Path("Engine/Resource/cas_codec.cpp").write_bytes(source)
           '@ | python -

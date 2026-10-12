@@ -27,7 +27,7 @@ jobs:
       - name: Portable ZIP regression tests
         run: python -m unittest discover -s contrib/Test -p '*_tests.py' -v
       - name: Configure the supported MSVC build
-        run: cmake --preset vs2022-x64 -DDINGOSDK_BUILD_LAUNCHER_TESTS=ON
+        run: cmake --preset vs2022-x64 -DDINGOSDK_BUILD_LAUNCHER_TESTS=ON -DDINGOSDK_CARGO=OFF
       - name: Build the launcher, runtime, and regression tests
         run: cmake --build --preset release --parallel 4
       - name: Run Windows regression tests
